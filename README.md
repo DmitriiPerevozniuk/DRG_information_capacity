@@ -118,46 +118,6 @@ Important details for interpreting results:
    where stimulus replaced nonzero background. An empty stimulation window
    returns zero input and zero noise, preserving the original early-return behavior.
 
-## Extraction and verification
-
-Source: the full `networked_DRG` directory, **not** `networked_DRG (2)`.
-The release was extracted from `CE_optimization.ipynb`: the numerical kernel and
-stimulation wrapper in cell 2, the disorder-aware model in cell 70, and the
-three-mode stimulation generator in cell 71 (cell indices are zero-based).
-The same core model is also present in `draft_CE_1.ipynb` and `draft_CE.ipynb`.
-
-Source notebook SHA-256:
-`fbd0ac7510d1b714568ee505524d60d11bd4154076c8e63d2842f0913fd71eaf`.
-
-Release-only changes:
-
-- Standalone Python files and a single-run example, without notebook state.
-- Explicit seed control, including disorder, with seed 0 preserving the legacy
-  population/stimulation sequence in serial execution. The original disorder
-  shuffle depended on prior global RNG state and was not reproducible on its own.
-- Serial stimulation JIT instead of `parallel=True`, avoiding parallel RNG
-  scheduling differences.
-- Always-defined background output (zeros without noise or with an empty
-  window); the final notebook definition otherwise used an undefined `mask`
-  without background noise and returned `None` for empty windows.
-- Input validation, documented units and return values; removed ignored
-  `v_thresh`, `v_reset`, `coupling_strength` arguments and optional `spread_stim`
-  smoothing, which was not used by the cited model runs.
-- Default arguments now use the paper's N/T/dt and fitted constants, with a
-  representative stimulation setup instead of the notebook's exploratory defaults.
-
-The included tests cover the scalar Euler update, chemical deposition, refractory
-behavior, connectivity, stimulation timing, normalization, shapes, seeds and
-edge cases. Validation passed on Python 3.13.5, NumPy 2.4.6, Numba 0.65.1 and
-llvmlite 0.47.0:
-
-- All 10 included tests passed.
-- All six output arrays exactly matched the original notebook functions for 12
-  serial-execution cases: three stimulation modes × two coupling profiles ×
-  radii 0 and 3.5, with background noise, seed 0 and DoD 0. This checks extraction
-  fidelity, not agreement with the manuscript's printed equation or figures.
-- The full default example ran successfully (400 neurons, 40,000 time steps,
-  21,519 spikes at seed 0). Optional output saving was also checked at seed 1.
 
 See `requirements.txt` for runtime dependencies.
 
